@@ -1,0 +1,170 @@
+import { Scene, KeyboardEventTypes, Vector3, Engine, DeviceSourceManager, DeviceType, PointerInput, PointerInfo } from '@babylonjs/core';
+import { InputManager } from '@babylonjs/core/Inputs/scene.inputManager';
+
+export enum InputAction {
+    None    = 0,
+    Forward = 1 << 0,
+    Back    = 1 << 1,
+    Left    = 1 << 2,
+    Right   = 1 << 3,
+    Jump    = 1 << 4,
+    Duck    = 1 << 5,
+    Use     = 1 << 6
+}
+
+export class UserCommand {
+    currentState: number = 0;
+    previousState: number = 0;
+    mouseDeltaX: number = 0;
+    mouseDeltaY: number = 0;
+    eyeAngles: Vector3 = new Vector3();
+
+    isDown(action: InputAction): boolean {
+        return (this.currentState & action) !== 0;
+    }
+
+    justPressed(action: InputAction): boolean {
+        return this.isDown(action) && (this.previousState & action) === 0;
+    }
+
+    justReleased(action: InputAction): boolean {
+        return !this.isDown(action) && (this.previousState & action) !== 0;
+    }
+
+    clear() {
+        this.previousState = this.currentState;
+        this.currentState = 0;
+        this.mouseDeltaX = 0;
+        this.mouseDeltaY = 0;
+    }
+}
+
+export class ClientInput {
+    private scene: Scene;
+    private keyMapping: Map<string, InputAction>;
+    private currentCommand: UserCommand = new UserCommand();
+    private pressedKeys: Set<string> = new Set();
+    private inputState: number = 0;
+    private sensitivity: number = 0.0005;
+    private deviceSourceManager: DeviceSourceManager;
+    private lastMouseX: number = 0;
+
+    private accumulatedMouseDeltaX: number = 0;
+    private accumulatedMouseDeltaY: number = 0;
+    private isPointerLocked: boolean = false;
+
+    private canvas: HTMLCanvasElement;
+
+    private _eyeAngles: Vector3 = new Vector3();
+
+    public get eyeAngles(): Vector3 {
+        return this._eyeAngles.clone();
+    }
+
+    constructor(scene: Scene) {
+        this.scene = scene;
+        this.deviceSourceManager = new DeviceSourceManager(this.scene.getEngine());
+        this.keyMapping = this.getDefaultKeyMapping();
+        this.canvas = this.scene.getEngine().getRenderingCanvas() as HTMLCanvasElement;
+        this.setupListeners();
+    }
+
+    private getDefaultKeyMapping(): Map<string, InputAction> {
+        return new Map([
+            ['w', InputAction.Forward],
+            ['s', InputAction.Back],
+            ['a', InputAction.Left],
+            ['d', InputAction.Right],
+            [' ', InputAction.Jump],
+            ['c', InputAction.Duck],
+            ['e', InputAction.Use]
+        ]);
+    }
+
+    private setupListeners() {
+        this.scene.onKeyboardObservable.add((kbInfo) => {
+            const key = kbInfo.event.key.toLowerCase();
+            if (this.keyMapping.has(key)) {
+                const action = this.keyMapping.get(key)!;
+                if (kbInfo.type === KeyboardEventTypes.KEYDOWN) {
+                    this.pressedKeys.add(key);
+                    this.inputState |= action;
+                } else if (kbInfo.type === KeyboardEventTypes.KEYUP) {
+                    this.pressedKeys.delete(key);
+                    this.inputState &= ~action;
+                }
+            }
+        });
+
+        this.scene.onPointerObservable.add((pinfo: PointerInfo) => {
+            this.accumulatedMouseDeltaX += pinfo.event.movementX;
+            this.accumulatedMouseDeltaY += pinfo.event.movementY;
+        });
+
+        document.addEventListener("pointerlockchange", () => {
+            this.isPointerLocked = document.pointerLockElement === this.canvas;
+        });
+
+        // Set up DeviceSourceManager for mouse input
+        // this.deviceSourceManager.onDeviceConnectedObservable.add((deviceSource) => {
+        //     if (deviceSource.deviceType === DeviceType.Mouse) {
+        //         deviceSource.onInputChangedObservable.add((eventData) => {
+        //             if (this.isPointerLocked) {
+        //                 if (eventData.inputIndex === PointerInput.Move) {
+        //                     this.accumulatedMouseDeltaX += eventData.movementX;
+        //                     this.accumulatedMouseDeltaY += eventData.movementY;
+        //                 }
+        //             }
+        //         });
+        //     }
+        // });
+    }
+
+    public setKeyMapping(newMapping: Map<string, InputAction>) {
+        this.keyMapping = newMapping;
+    }
+
+    public setSensitivity(sensitivity: number) {
+        this.sensitivity = sensitivity;
+    }
+
+
+    public update(deltaTime: number) {
+        this.currentCommand.previousState = this.currentCommand.currentState;
+        this.currentCommand.currentState = this.inputState;
+
+        // Apply accumulated mouse movement
+        const mouseDeltaX = this.accumulatedMouseDeltaX * this.sensitivity;
+        const mouseDeltaY = this.accumulatedMouseDeltaY * this.sensitivity;
+
+        // Update eye angles immediately
+        this._eyeAngles.y += mouseDeltaX;
+        this._eyeAngles.x += mouseDeltaY;
+
+        // Clamp vertical rotation
+        this._eyeAngles.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this._eyeAngles.x));
+
+        // Wrap horizontal rotation
+        this._eyeAngles.y = ((this._eyeAngles.y + Math.PI) % (2 * Math.PI)) - Math.PI;
+
+        // Update the UserCommand's eyeAngles and mouse deltas
+        this.currentCommand.eyeAngles.copyFrom(this._eyeAngles);
+        this.currentCommand.mouseDeltaX = mouseDeltaX;
+        this.currentCommand.mouseDeltaY = mouseDeltaY;
+
+        // Reset accumulated mouse movement
+        this.accumulatedMouseDeltaX = 0;
+        this.accumulatedMouseDeltaY = 0;
+    }
+
+    public tick(deltaTime: number): UserCommand {
+        const tickCommand = new UserCommand();
+        tickCommand.currentState = this.currentCommand.currentState;
+        tickCommand.previousState = this.currentCommand.previousState;
+        tickCommand.mouseDeltaX = this.currentCommand.mouseDeltaX;
+        tickCommand.mouseDeltaY = this.currentCommand.mouseDeltaY;
+        tickCommand.eyeAngles.copyFrom(this._eyeAngles);
+
+        return tickCommand;
+    }
+}
