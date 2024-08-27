@@ -1,3 +1,8 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as protobuf from 'protobufjs';
+import * as pako from 'pako';
+
 // Enums
 export enum GBObjectTypes {
     Default,
