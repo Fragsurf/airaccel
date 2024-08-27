@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server --port 8080"
+    "start": "node server.js",
+    "postinstall": "npm run build"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@babylonjs/havok": "^1.3.8",
+    "express": "^4.17.1",
     "pako": "^2.1.0",
     "protobufjs": "^7.4.0"
   }
