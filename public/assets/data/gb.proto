@@ -1,0 +1,132 @@
+syntax = "proto3";
+package Graybox.Format;
+
+message GBAsset {
+   string RelativePath = 101;
+   oneof subtype {
+      GBTextureAsset GBTextureAsset = 1;
+      GBMaterialAsset GBMaterialAsset = 2;
+   }
+}
+message GBEntity {
+   GBObjectTypes Type = 501;
+   string ClassName = 502;
+   map<string,string> Properties = 503;
+}
+message GBEnvironmentData {
+   bool FogEnabled = 1;
+   GBVec4 FogColor = 2;
+   float FogDensity = 3;
+   GBVec4 AmbientColor = 4;
+   string Skybox = 5;
+   GBVec4 SkyColor = 6;
+}
+message GBFace {
+   int64 ID = 1;
+   GBVec4 Color = 2;
+   GBVec3 Normal = 3;
+   GBTextureReference Texture = 4;
+   repeated GBVertex Vertices = 5;
+}
+message GBGroup {
+   GBObjectTypes Type = 301;
+}
+message GBLight {
+   GBObjectTypes Type = 601;
+   GBLightInfo LightInfo = 602;
+}
+message GBLightInfo {
+   GBVec3 Position = 1;
+   GBVec3 Direction = 2;
+   float Range = 3;
+   float Intensity = 4;
+   GBVec4 Color = 5;
+   GBLightTypes Type = 6;
+}
+enum GBLightTypes {
+   Point = 0;
+   Directional = 1;
+}
+message GBLightmap {
+   int32 Width = 1;
+   int32 Height = 2;
+   repeated float Data = 3 [packed = false];
+   repeated float DirectionalData = 4 [packed = false];
+   repeated float ShadowMaskData = 5 [packed = false];
+   GBVec2 DirectionalSize = 6;
+   GBVec2 ShadowMaskSize = 7;
+}
+message GBLightmapData {
+   repeated GBLightmap Lightmaps = 401;
+}
+message GBMap {
+   string Name = 1;
+   GBLightmapData LightmapData = 2;
+   GBObject World = 3;
+   repeated GBAsset Assets = 4;
+   GBEnvironmentData EnvironmentData = 5;
+}
+message GBMaterialAsset {
+   map<string,string> Properties = 301;
+}
+message GBObject {
+   GBObjectTypes Type = 101;
+   string Name = 102;
+   int64 ID = 103;
+   repeated GBObject Children = 104;
+   oneof subtype {
+      GBWorld GBWorld = 1;
+      GBGroup GBGroup = 2;
+      GBSolid GBSolid = 3;
+      GBEntity GBEntity = 4;
+      GBLight GBLight = 5;
+   }
+}
+enum GBObjectTypes {
+   Default = 0;
+   Solid = 1;
+   Entity = 2;
+   World = 3;
+   Group = 4;
+   Light = 5;
+}
+message GBSolid {
+   GBObjectTypes Type = 401;
+   repeated GBFace Faces = 402;
+}
+message GBTextureAsset {
+   int32 Width = 201;
+   int32 Height = 202;
+   bytes Data = 203;
+   bool Transparent = 204;
+}
+message GBTextureReference {
+   string AssetPath = 1;
+   GBVec3 UAxis = 2;
+   GBVec3 VAxis = 3;
+   GBVec4 ShiftScale = 4;
+   float Rotation = 5;
+}
+message GBVec2 {
+   float X = 1;
+   float Y = 2;
+}
+message GBVec3 {
+   float X = 1;
+   float Y = 2;
+   float Z = 3;
+}
+message GBVec4 {
+   float X = 1;
+   float Y = 2;
+   float Z = 3;
+   float W = 4;
+}
+message GBVertex {
+   GBVec3 Position = 1;
+   GBVec2 UV0 = 2;
+   GBVec2 UV1 = 3;
+}
+message GBWorld {
+   GBObjectTypes Type = 201;
+}

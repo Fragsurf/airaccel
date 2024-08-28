@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as protobuf from 'protobufjs';
 import * as pako from 'pako';
 
@@ -18,6 +16,48 @@ export enum GBLightTypes {
     Directional
 }
 
+export enum GBAssetTypes {
+    Default,
+    Texture,
+    Material
+}
+
+type SubtypePropertyNames<T> = {
+    [K in keyof T]: T[K] extends { Type: any } ? K : never
+}[keyof T];
+
+function isObject(value: unknown): value is Record<string, any> {
+    return typeof value === 'object' && value !== null;
+}
+
+function mergeSubtypes<T extends Record<string, any>>(obj: T): T {
+    const result = { ...obj };
+
+    // Find the subtype property (assuming there's only one)
+    const subtypeKey = Object.keys(result).find(key => 
+        isObject(result[key]) && 'Type' in result[key]
+    ) as SubtypePropertyNames<T> | undefined;
+
+    if (subtypeKey) {
+        // Merge the subtype's properties into the main object
+        Object.assign(result, result[subtypeKey]);
+        // Remove the subtype property
+        delete result[subtypeKey];
+    }
+
+    // Recursively merge subtypes for all array properties
+    Object.keys(result).forEach(key => {
+        const value = result[key];
+        if (Array.isArray(value)) {
+            (result as any)[key] = value.map((item: unknown) => 
+                isObject(item) ? mergeSubtypes(item) : item
+            );
+        }
+    });
+
+    return result;
+}
+
 // Classes
 export class GBMap {
     Name: string = '';
@@ -27,54 +67,55 @@ export class GBMap {
     EnvironmentData: GBEnvironmentData = new GBEnvironmentData();
 
     static async FromFile(fileName: string): Promise<GBMap> {
-        const filePath = path.join('public', 'assets', 'maps', fileName);
+        try {
+            const compressedData = await this.readFile(fileName);
+            const decompressedData = pako.inflate(compressedData);
+            const root = await protobuf.load('assets/data/gb.proto');
+            const GBMapMessage = root.lookupType('Graybox.Format.GBMap');
+            const message = GBMapMessage.decode(decompressedData);
 
-        // Read the file
-        const compressedData = await fs.promises.readFile(filePath);
+            // Convert to plain object, preserving enum values as numbers
+            const object = GBMapMessage.toObject(message, {
+                longs: String,
+                enums: Number,
+                bytes: String,
+                objects: true,  // Include this to preserve object structure
+            });
 
-        // Decompress the data
-        const decompressedData = pako.inflate(compressedData);
+            var map = object as GBMap;
+            map.World = mergeSubtypes(map.World);
+            //map.Assets = map.Assets.map(item => mergeSubtypes(item));
 
-        // Load the Protocol Buffers schema
-        const root = await protobuf.load('path/to/your/schema.proto');
-
-        // Get the GBMap message type
-        const GBMapMessage = root.lookupType('Graybox.Format.GBMap');
-
-        // Decode the message
-        const message = GBMapMessage.decode(decompressedData);
-
-        // Convert to plain object
-        const object = GBMapMessage.toObject(message, {
-            longs: String,
-            enums: String,
-            bytes: String,
-        });
-
-        // Create and return a new GBMap instance
-        return this.fromObject(object);
+            return map;
+        } catch (error) {
+            console.error("Error loading GBMap:", error);
+            throw error;
+        }
     }
 
-    private static fromObject(obj: any): GBMap {
-        const map = new GBMap();
-        Object.assign(map, obj);
-        // You might need to do some additional processing here,
-        // especially for nested objects and arrays
-        return map;
-    }
-
-    static ToFile(map: GBMap): ArrayBuffer {
-        // Implement serialization logic here
-        // This would involve converting the map to a byte array and compressing it
-        throw new Error("Method not implemented.");
+    private static async readFile(fileName: string): Promise<Uint8Array> {
+        const response = await fetch(fileName);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        return new Uint8Array(arrayBuffer);
     }
 }
 
 export class GBAsset {
+    Type: GBAssetTypes = GBAssetTypes.Default;
     RelativePath: string = '';
+    // 'm dumb and never actually serialized a asset type key in graybox format..
+    GBTextureAsset!: GBTextureAsset;
+    GBMaterialAsset!: GBMaterialAsset;
 }
 
 export class GBTextureAsset extends GBAsset {
+    constructor() {
+        super();
+        this.Type = GBAssetTypes.Texture;
+    }
     Width: number = 0;
     Height: number = 0;
     Data: Uint8Array = new Uint8Array();
@@ -82,6 +123,10 @@ export class GBTextureAsset extends GBAsset {
 }
 
 export class GBMaterialAsset extends GBAsset {
+    constructor() {
+        super();
+        this.Type = GBAssetTypes.Material;
+    }
     Properties: { [key: string]: string } = {};
 }
 

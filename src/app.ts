@@ -9,10 +9,10 @@ import HavokPhysics from "@babylonjs/havok";
 import { GameLoop } from "./gameloop";
 
 import { FirstPersonController } from "./firstpersoncontroller";
-import { Map } from "./map";
 import { GamePhysics } from "./gamephysics";
 import { InputController } from "./inputcontroller";
 import { GameHUD } from "./gamehud";
+import { GrayboxMap } from "./map/grayboxmap";
 
 class App {
     private framerateDisplay!: FramerateDisplay;
@@ -40,7 +40,7 @@ class App {
             this.physics = new GamePhysics( this.scene );
             this.firstPersonController = new FirstPersonController(this.scene, this.physics, new Vector3( 0, 10, 0 ));
 
-            new Map(this.scene, this.physics);
+            new GrayboxMap(this.scene, this.physics);
 
             // Create and set up the game loop
             this.gameLoop = new GameLoop(this.scene, this.engine);
@@ -50,6 +50,7 @@ class App {
             this.gameLoop.addUpdateCallback((deltaTime) => {
                 this.gameHud.updateHUD(this.firstPersonController.velocity, 0, 0);
             });
+            
         });
 
         window.addEventListener("resize", () => {
