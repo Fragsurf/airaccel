@@ -1,4 +1,4 @@
-export class FramerateDisplay {
+export class FPSGraph {
     private container: HTMLDivElement;
     private fpsElement: HTMLDivElement;
     private canvas: HTMLCanvasElement;

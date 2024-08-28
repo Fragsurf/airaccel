@@ -8,7 +8,7 @@ export class InputController {
     private onPointerLockChange: ((isLocked: boolean) => void) | null = null;
     private lockRequested: boolean = false;
     private lastUnlockTime: number = 0;
-    private readonly LOCK_COOLDOWN: number = 1500; // 1 second cooldown
+    private readonly LOCK_COOLDOWN: number = 1500; 
 
     constructor(scene: Scene, engine: Engine) {
         this.scene = scene;

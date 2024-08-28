@@ -1,9 +1,9 @@
 import { Scene, UniversalCamera, Vector3, BoundingBox, Engine } from "@babylonjs/core";
-import { GamePhysics, TraceResult } from "./gamephysics";
-import { GameLoop } from "./gameloop";
+import { GamePhysics, TraceResult } from "../gamephysics";
+import { GameLoop } from "../gameloop";
 import { ClientInput, InputAction, UserCommand } from "./clientinput";
 
-export class FirstPersonController {
+export class PlayerController {
     private scene: Scene;
     private camera!: UniversalCamera;
     private moveSpeed: number = 7.365;

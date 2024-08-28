@@ -1,6 +1,6 @@
 import { Scene, MeshBuilder, StandardMaterial, Color3, Vector3, PhysicsAggregate, PhysicsShapeType, DirectionalLight, ShadowGenerator, Texture, PhysicsShapeMesh, PhysicsBody, PhysicsMotionType, HemisphericLight, CubeTexture, Mesh, VertexData, TransformNode, RawTexture, TextureFormat, Engine } from "@babylonjs/core";
 import { GamePhysics } from "../gamephysics";
-import { GBMap, GBObject, GBSolid, GBFace, GBVertex, GBTextureAsset, GBEntity, GBLight, GBObjectTypes, GBAsset } from "../graybox/gbformat";
+import { GBMap, GBObject, GBSolid, GBFace, GBVertex, GBTextureAsset, GBEntity, GBLight, GBObjectTypes, GBAsset } from "./gbformat";
 
 export class GrayboxMap {
     private scene: Scene;

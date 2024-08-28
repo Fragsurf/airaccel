@@ -1,25 +1,22 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, HavokPlugin, PhysicsHelper, SceneOptimizerOptions, HardwareScalingOptimization, SceneOptimizer, NullEngineOptions, Color3 } from "@babylonjs/core";
-import { FramerateDisplay } from "./frameratedisplay";
-import { HavokTest } from "./havoktest";
-import { GltfTest } from "./gltftest";
+import { Engine, Scene, Vector3, HavokPlugin } from "@babylonjs/core";
+import { FPSGraph } from "./ui/fpsgraph";
 import HavokPhysics from "@babylonjs/havok";
 import { GameLoop } from "./gameloop";
-
-import { FirstPersonController } from "./firstpersoncontroller";
+import { PlayerController } from "./player/playercontroller";
 import { GamePhysics } from "./gamephysics";
 import { InputController } from "./inputcontroller";
-import { GameHUD } from "./gamehud";
-import { GrayboxMap } from "./map/grayboxmap";
+import { GameHUD } from "./ui/gamehud";
+import { GrayboxMap } from "./map/gbmap";
 
 class App {
-    private framerateDisplay!: FramerateDisplay;
+    private framerateDisplay!: FPSGraph;
     private scene!: Scene;
     private engine!: Engine;
     private gameLoop!: GameLoop;
-    private firstPersonController!: FirstPersonController;
+    private playerController!: PlayerController;
     private physics!: GamePhysics;
     private input: InputController;
     private gameHud: GameHUD;
@@ -29,7 +26,7 @@ class App {
         canvas.style.width = "100%";
         canvas.style.height = "100%";
 
-        this.framerateDisplay = new FramerateDisplay();
+        this.framerateDisplay = new FPSGraph();
         this.gameHud = new GameHUD();
         this.engine = new Engine(canvas, true);
         this.scene = new Scene(this.engine);
@@ -38,17 +35,17 @@ class App {
         this.initializePhysicsAndScene().then(() => {
 
             this.physics = new GamePhysics( this.scene );
-            this.firstPersonController = new FirstPersonController(this.scene, this.physics, new Vector3( 0, 10, 0 ));
+            this.playerController = new PlayerController(this.scene, this.physics, new Vector3( 0, 10, 0 ));
 
             new GrayboxMap(this.scene, this.physics);
 
             // Create and set up the game loop
             this.gameLoop = new GameLoop(this.scene, this.engine);
-            this.gameLoop.addTickCallback((deltaTime) => this.firstPersonController.tick(deltaTime));
-            this.gameLoop.addUpdateCallback((deltaTime) => this.firstPersonController.update(deltaTime));
+            this.gameLoop.addTickCallback((deltaTime) => this.playerController.tick(deltaTime));
+            this.gameLoop.addUpdateCallback((deltaTime) => this.playerController.update(deltaTime));
             this.gameLoop.addUpdateCallback((deltaTime) => this.framerateDisplay.update(this.engine.getFps()));
             this.gameLoop.addUpdateCallback((deltaTime) => {
-                this.gameHud.updateHUD(this.firstPersonController.velocity, 0, 0);
+                this.gameHud.updateHUD(this.playerController.velocity, 0, 0);
             });
             
         });
