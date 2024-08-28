@@ -7,6 +7,7 @@ export class GrayboxMap {
     private physics: GamePhysics;
     private shadowGenerator!: ShadowGenerator;
     private gbmap!: GBMap;
+    private lightmapTexture!: Texture;
     private materials: Map<string, StandardMaterial> = new Map();
     private readonly WorldScale: number = 0.0254;
 
@@ -47,7 +48,22 @@ export class GrayboxMap {
             return;
         }
 
+        this.loadLightmaps();
         this.convertObject(this.gbmap.World);
+    }
+
+    private loadLightmaps(): void {
+        if(this.gbmap.LightmapData?.Lightmaps?.length > 0)
+        {
+            var lm = this.gbmap.LightmapData.Lightmaps[0];
+            const tex = RawTexture.CreateRGBTexture(null, lm.Width, lm.Height, this.scene, false, false, Texture.LINEAR_LINEAR, Engine.TEXTURETYPE_FLOAT);
+            this.lightmapTexture = tex;
+            this.lightmapTexture.coordinatesIndex = 1;
+            this.lightmapTexture.wrapU = Texture.CLAMP_ADDRESSMODE;
+            this.lightmapTexture.wrapV = Texture.CLAMP_ADDRESSMODE;
+            this.lightmapTexture.gammaSpace = false;
+            tex.update(lm.Data);
+        }
     }
 
     private convertObject(obj: GBObject): TransformNode {
@@ -104,6 +120,7 @@ export class GrayboxMap {
             const subPositions: number[] = [];
             const subIndices: number[] = [];
             const subUvs: number[] = [];
+            const subUv2s: number[] = [];
             const subNormals: number[] = [];
 
             let vertexIndex = 0;
@@ -112,7 +129,7 @@ export class GrayboxMap {
                 if (face.Vertices.length < 3) return;
             
                 const faceNormal = this.convertToUnitySpace(face.Normal);
-            
+
                 for (let i = 1; i < face.Vertices.length - 1; i++) {
                     // Reverse the order of vertices: [0, i+1, i] instead of [0, i, i+1]
                     [0, i + 1, i].forEach(j => {
@@ -120,6 +137,7 @@ export class GrayboxMap {
                         const position = this.convertToUnitySpace(vertex.Position, true);
                         subPositions.push(...position.asArray());
                         subUvs.push(vertex.UV0.X, vertex.UV0.Y);
+                        subUv2s.push(vertex.UV1.X, vertex.UV1.Y);
                         subNormals.push(...faceNormal.asArray());
                         subIndices.push(vertexIndex++);
                     });
@@ -131,6 +149,7 @@ export class GrayboxMap {
             subVertexData.positions = subPositions;
             subVertexData.indices = subIndices;
             subVertexData.uvs = subUvs;
+            subVertexData.uvs2 = subUv2s;
             subVertexData.normals = subNormals;
             subVertexData.applyToMesh(subMesh);
 
@@ -165,6 +184,10 @@ export class GrayboxMap {
             if (texture) {
                 material.diffuseTexture = texture;
             }
+            if(this.lightmapTexture) {
+                material.lightmapTexture = this.lightmapTexture;
+                material.useLightmapAsShadowmap = true;
+            }
             material.specularColor = new Color3(0, 0, 0); // Remove specularity
             this.materials.set(assetPath, material);
         }
@@ -187,7 +210,7 @@ export class GrayboxMap {
             "data:image/png;base64," + asset.GBTextureAsset.Data, 
             this.scene,
             false, //nomipmap
-            true //invertY 
+            false //invertY 
         );
         return texture;
     }

@@ -79,12 +79,20 @@ export class GBMap {
                 longs: String,
                 enums: Number,
                 bytes: String,
+                arrays: true,
                 objects: true,  // Include this to preserve object structure
             });
 
             var map = object as GBMap;
             map.World = mergeSubtypes(map.World);
-            //map.Assets = map.Assets.map(item => mergeSubtypes(item));
+
+            if (map.LightmapData?.Lightmaps?.length > 0) {
+                map.LightmapData.Lightmaps.forEach(lm => {
+                    if (lm.Data && !(lm.Data instanceof Float32Array)) {
+                        lm.Data = new Float32Array(lm.Data);
+                    }
+                });
+            }
 
             return map;
         } catch (error) {
