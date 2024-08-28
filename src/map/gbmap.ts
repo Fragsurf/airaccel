@@ -1,4 +1,4 @@
-import { Scene, MeshBuilder, StandardMaterial, Color3, Vector3, PhysicsAggregate, PhysicsShapeType, DirectionalLight, ShadowGenerator, Texture, PhysicsShapeMesh, PhysicsBody, PhysicsMotionType, HemisphericLight, CubeTexture, Mesh, VertexData, TransformNode, RawTexture, TextureFormat, Engine } from "@babylonjs/core";
+import { Scene, MeshBuilder, StandardMaterial, Color3, Vector3, PhysicsAggregate, PhysicsShapeType, DirectionalLight, ShadowGenerator, Texture, PhysicsShapeMesh, PhysicsBody, PhysicsMotionType, HemisphericLight, CubeTexture, Mesh, VertexData, TransformNode, RawTexture, TextureFormat, Engine, ITextureCreationOptions, CopyTextureToTexture, Matrix, EquiRectangularCubeTexture, SceneLoader } from "@babylonjs/core";
 import { GamePhysics } from "../gamephysics";
 import { GBMap, GBObject, GBSolid, GBFace, GBVertex, GBTextureAsset, GBEntity, GBLight, GBObjectTypes, GBAsset } from "./gbformat";
 
@@ -49,6 +49,7 @@ export class GrayboxMap {
         }
 
         this.loadLightmaps();
+        this.loadSkybox();
         this.convertObject(this.gbmap.World);
     }
 
@@ -63,6 +64,48 @@ export class GrayboxMap {
             this.lightmapTexture.wrapV = Texture.CLAMP_ADDRESSMODE;
             this.lightmapTexture.gammaSpace = false;
             tex.update(lm.Data);
+        }
+    }
+
+    private loadSkybox(): void {
+        if (this.gbmap.EnvironmentData?.Skybox) {
+            const asset = this.gbmap.Assets.find(a => a.RelativePath === this.gbmap.EnvironmentData.Skybox);
+            if (!asset) return;
+    
+            const skyTexture = new Texture(
+                "data:image/png;base64," + asset.GBTextureAsset.Data, 
+                this.scene,
+                false, // No mipmap
+                false  // Don't invert Y-axis
+            );
+    
+            // Load the skybox mesh
+            SceneLoader.ImportMesh("", "/assets/models/", "skycube.glb", this.scene, (meshes) => {
+                if (meshes.length > 0) {
+                    // why does my glb have two meshes? it's just a single cube in blender.
+                    for(let i = 0; i < meshes.length; i++)
+                    {
+                        const skyboxMesh = meshes[i];
+                        skyboxMesh.scaling = new Vector3(50, 50, 50); // Scale up the mesh
+        
+                        // Create and setup the skybox material
+                        const skyboxMaterial = new StandardMaterial("skyboxMaterial", this.scene);
+                        skyboxMaterial.backFaceCulling = false;
+                        skyboxMaterial.diffuseTexture = skyTexture;
+                        skyboxMaterial.diffuseTexture.hasAlpha = false;
+                        skyboxMaterial.useAlphaFromDiffuseTexture = false;
+                        skyboxMaterial.disableLighting = true;
+                        skyboxMaterial.emissiveColor = new Color3(1, 1, 1); // Full brightness
+                        skyboxMaterial.specularColor = new Color3(0, 0, 0);
+        
+                        // Apply the material to the skybox mesh
+                        skyboxMesh.material = skyboxMaterial;
+        
+                        // Ensure the skybox is always centered on the camera
+                        skyboxMesh.infiniteDistance = true;
+                    }
+                }
+            });
         }
     }
 
@@ -206,12 +249,17 @@ export class GrayboxMap {
             return null;
         }
 
+        // wish I could do this but I can't figure out how to
+        // purely convert gbformat to typeshit
+        //return RawTexture.CreateRGBATexture( asset.GBTextureAsset.Data, asset.GBTextureAsset.Width, asset.GBTextureAsset.Height, this.scene, false, false, Texture.BILINEAR_SAMPLINGMODE, Engine.TEXTURETYPE_UNSIGNED_BYTE );
+
         const texture = new Texture(
             "data:image/png;base64," + asset.GBTextureAsset.Data, 
             this.scene,
             false, //nomipmap
             false //invertY 
         );
+
         return texture;
     }
 

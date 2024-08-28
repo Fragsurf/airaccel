@@ -69,7 +69,7 @@ export class GBMap {
     static async FromFile(fileName: string): Promise<GBMap> {
         try {
             const compressedData = await this.readFile(fileName);
-            const decompressedData = pako.inflate(compressedData);
+            const decompressedData = pako.ungzip(compressedData);
             const root = await protobuf.load('assets/data/gb.proto');
             const GBMapMessage = root.lookupType('Graybox.Format.GBMap');
             const message = GBMapMessage.decode(decompressedData);
@@ -85,6 +85,7 @@ export class GBMap {
 
             var map = object as GBMap;
             map.World = mergeSubtypes(map.World);
+            map.Assets = map.Assets.map(item => mergeSubtypes(item));
 
             if (map.LightmapData?.Lightmaps?.length > 0) {
                 map.LightmapData.Lightmaps.forEach(lm => {

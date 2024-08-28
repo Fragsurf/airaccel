@@ -97,7 +97,7 @@ message GBSolid {
 message GBTextureAsset {
    int32 Width = 201;
    int32 Height = 202;
-   bytes Data = 203;
+   bytes Data = 203 [packed = false];
    bool Transparent = 204;
 }
 message GBTextureReference {
