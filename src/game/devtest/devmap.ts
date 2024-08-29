@@ -1,5 +1,5 @@
 import { Scene, MeshBuilder, StandardMaterial, Color3, Vector3, PhysicsAggregate, PhysicsShapeType, DirectionalLight, ShadowGenerator, Texture, PhysicsShapeMesh, PhysicsBody, PhysicsMotionType, HemisphericLight, CubeTexture } from "@babylonjs/core";
-import { GamePhysics } from "../gamephysics";
+import { GamePhysics } from "../game/gamephysics";
 
 export class Map {
     private scene: Scene;
