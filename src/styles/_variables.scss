@@ -1,0 +1,12 @@
+$color-background: #1a1a1a;
+$color-text: #ffffff;
+$color-accent: #42b883;
+$color-accent-dark: #33a06f;
+
+$font-family: 'Inter', sans-serif;
+$max-width: 1200px;
+
+@mixin smooth-text {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

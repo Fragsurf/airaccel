@@ -8,15 +8,15 @@
 </script>
 
 <template>
-  <div class="main-ui">
+  <div id="aa-ui">
     <FPSCounter :airaccel=" airaccel " />
     <GameHUD :playerController=" airaccel.getPlayerController() " />
   </div>
 </template>
 
 <style scoped>
-  .main-ui {
-    position: absolute;
+  .aa-ui {
+    position: relative;
     top: 0;
     left: 0;
     width: 100%;
