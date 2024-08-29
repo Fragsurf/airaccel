@@ -5,7 +5,6 @@ import { GBMap, GBObject, GBSolid, GBFace, GBVertex, GBTextureAsset, GBEntity, G
 export class GrayboxMap {
     private scene: Scene;
     private physics: GamePhysics;
-    private shadowGenerator!: ShadowGenerator;
     private gbmap!: GBMap;
     private lightmapTexture!: Texture;
     private materials: Map<string, StandardMaterial> = new Map();
@@ -19,18 +18,9 @@ export class GrayboxMap {
     }
 
     private createSunLight(): void {
-        const light = new DirectionalLight("sunLight", new Vector3(-1, -2, -1), this.scene);
-        light.position = new Vector3(100, 100, 0);
-        light.intensity = 0.7;
-        light.shadowEnabled = true;
-
-        const light2 = new HemisphericLight("hemisphereLight", new Vector3(1, 2, 1), this.scene);
-        light2.shadowEnabled = true;
-
-        this.shadowGenerator = new ShadowGenerator(2048, light);
-        this.shadowGenerator.useBlurExponentialShadowMap = true;
-        this.shadowGenerator.blurKernel = 32;
-        this.shadowGenerator.bias = 0.00001;  
+        const light = new HemisphericLight("hemisphericLight", new Vector3(-1, -2, -1), this.scene);
+        light.shadowEnabled = false;
+        light.groundColor = new Color3(1,1,1);
     }
 
     private async loadMap(): Promise<void> {
