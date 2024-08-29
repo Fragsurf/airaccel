@@ -8,7 +8,8 @@ import { PlayerController } from "./player/playercontroller";
 import { GamePhysics } from "./gamephysics";
 import { GrayboxMap } from "./map/gbmap";
 
-export class AirAccel {
+export class AirAccel
+{
     private scene!: Scene;
     private engine!: Engine;
     private gameLoop!: GameLoop;
@@ -16,51 +17,60 @@ export class AirAccel {
     private physics!: GamePhysics;
     private canvas: HTMLCanvasElement;
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor( canvas: HTMLCanvasElement )
+    {
         this.canvas = canvas;
-        this.engine = new Engine(this.canvas, true);
-        this.scene = new Scene(this.engine);
+        this.engine = new Engine( this.canvas, true );
+        this.scene = new Scene( this.engine );
     }
 
-    public async initialize(): Promise<void> {
+    public async initialize(): Promise<void>
+    {
         await this.initializePhysicsAndScene();
-        this.physics = new GamePhysics(this.scene);
-        this.playerController = new PlayerController(this.scene, this.physics, new Vector3(0, 10, 0));
+        this.physics = new GamePhysics( this.scene );
+        this.playerController = new PlayerController( this.scene, this.physics, new Vector3( 0, 10, 0 ) );
 
-        new GrayboxMap(this.scene, this.physics);
+        new GrayboxMap( this.scene, this.physics );
 
-        this.gameLoop = new GameLoop(this.scene, this.engine);
-        this.gameLoop.addTickCallback((deltaTime) => this.playerController.tick(deltaTime));
-        this.gameLoop.addUpdateCallback((deltaTime) => this.playerController.update(deltaTime));
+        this.gameLoop = new GameLoop( this.scene, this.engine );
+        this.gameLoop.addTickCallback( ( deltaTime ) => this.playerController.tick( deltaTime ) );
+        this.gameLoop.addUpdateCallback( ( deltaTime ) => this.playerController.update( deltaTime ) );
 
-        window.addEventListener("resize", () => {
+        window.addEventListener( "resize", () =>
+        {
             this.engine.resize();
-        });
+        } );
     }
 
-    public resize(): void {
+    public resize(): void
+    {
         this.engine.resize();
     }
 
-    public getEngine(): Engine {
+    public getEngine(): Engine
+    {
         return this.engine;
     }
 
-    public getScene(): Scene {
+    public getScene(): Scene
+    {
         return this.scene;
     }
 
-    public getCanvas(): HTMLCanvasElement {
+    public getCanvas(): HTMLCanvasElement
+    {
         return this.canvas;
     }
 
-    public getPlayerController(): PlayerController {
+    public getPlayerController(): PlayerController
+    {
         return this.playerController;
     }
 
-    private async initializePhysicsAndScene(): Promise<void> {
+    private async initializePhysicsAndScene(): Promise<void>
+    {
         const havokInstance = await HavokPhysics();
-        const havokPlugin = new HavokPlugin(true, havokInstance);
-        this.scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
+        const havokPlugin = new HavokPlugin( true, havokInstance );
+        this.scene.enablePhysics( new Vector3( 0, -9.81, 0 ), havokPlugin );
     }
 }
