@@ -3,7 +3,7 @@
     <header>
       <nav>
         <router-link to="/" class="logo">
-          <img src="/assets/images/airaccel_logo_3.png" alt="AIRACCEL Logo" class="game-logo" />
+          <img src="/images/airaccel_logo_3.png" alt="AIRACCEL Logo" class="game-logo" />
         </router-link>
         <div class="nav-links">
           <router-link to="/" exact>Home</router-link>

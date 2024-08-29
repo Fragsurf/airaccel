@@ -1,34 +1,37 @@
 <template>
   <main class="home">
     <section class="hero">
-      <img src="/assets/images/airaccel_logo.png" alt="AIRACCEL Logo" class="hero-logo" />
+      <img src="/images/airaccel_logo.png" alt="AIRACCEL Logo" class="hero-logo" />
       <p>Precision bunnyhop. Fluid surfing. Pure speed.</p>
     </section>
 
     <section class="info">
       <div class="card">
         <h2>About</h2>
-        <p>{{ gameTitle }} fuses bunnyhopping precision with surfing fluidity. Master the mechanics. Dominate
-          leaderboards.</p>
+        <p>{{ gameTitle }} is a bunnyhop and surfing game built to be played in browsers, coinciding with global leaderboards and community made maps.</p>
       </div>
       <div class="card">
+        <img src="/images/bhop.jpg" alt="Inspiration Icon" class="card-icon" />
         <h2>Inspiration</h2>
-        <p>Built on classic mods and community passion. {{ gameTitle }} evolves movement-based gameplay with new
-          challenges.</p>
+        <p>Inspired by classic Source mods, built with community passion. {{ gameTitle }} evolves movement-based gameplay with improved accessibility and new tech.</p>
+      </div>
+      <div class="card">
+        <img src="/images/graybox.jpg" alt="Graybox Icon" class="card-icon" />
+        <h2>Graybox</h2>
+        <p>Craft your perfect speedrun playground with Graybox, our intuitive level editing tool. Design, test, and share your creations with the {{ gameTitle }} community.</p>
       </div>
     </section>
 
     <section class="github card">
       <h2>Open Source</h2>
       <p>Shape the future of speedrunning. Contribute to {{ gameTitle }}.</p>
-      <a href="https://github.com/cr4yz/airaccel" target="_blank" rel="noopener noreferrer" class="btn">GitHub
-        Repository</a>
+      <a href="https://github.com/cr4yz/airaccel" target="_blank" rel="noopener noreferrer" class="btn">GitHub Repository</a>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
-  const gameTitle = 'AIRACCEL';
+const gameTitle = 'AIRACCEL';
 </script>
 
 <style lang="scss" scoped>
@@ -37,7 +40,7 @@
 .home {
   display: grid;
   gap: 4rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 
@@ -76,7 +79,7 @@
 
 .info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
 }
 
@@ -96,6 +99,8 @@
     0 1px 3px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba($color-accent, 0.05) inset,
     0 0 20px rgba($color-accent, 0.03) inset;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-5px);
@@ -110,6 +115,7 @@
     position: relative;
     display: inline-block;
     margin-bottom: 1rem;
+    z-index: 2;
 
     &::after {
       content: '';
@@ -126,6 +132,54 @@
         transparent
       );
     }
+  }
+
+  p {
+    position: relative;
+    z-index: 2;
+    text-shadow: 1px 1px 1px black;
+  }
+
+  .card-icon {
+    position: absolute;
+    top: 50%;
+    right: -10%;
+    height: 100%;
+    opacity: 0.07;
+    transition: all 0.5s ease;
+    transform: translateY(-50%);
+    filter: blur(1px);
+    pointer-events: none;
+  }
+
+  &:hover {
+    .card-icon {
+      opacity: 0.32;
+      right: -5%;
+      transform: translateY(-50%) scale(1.1);
+      filter: blur(0);
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      circle at 90% 50%,
+      rgba($color-accent, 0.1) 0%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    opacity: 1;
   }
 }
 
