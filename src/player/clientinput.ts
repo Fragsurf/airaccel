@@ -47,6 +47,7 @@ export class ClientInput {
     private sensitivity: number = .001 * .5;
     private accumulatedMouseDeltaX: number = 0;
     private accumulatedMouseDeltaY: number = 0;
+    private isPointerLocked: boolean = false;
 
     private canvas: HTMLCanvasElement;
 
@@ -153,38 +154,44 @@ export class ClientInput {
             canvas.requestPointerLock = 
             canvas.requestPointerLock ||
             canvas.mozRequestPointerLock ||
-            canvas.webkitRequestPointerLock;
+            canvas.webkitRequestPointerLock ||
+            canvas.msRequestPointerLock;
             // @ts-expect-error
-            canvas.requestPointerLock({unadjustedMovement: true});
-        };
+            canvas.requestPointerLock({ unadjustedMovement: true });
+        }
     }
 
     private changeCallback(e: any): void 
     {
+        const mouseMove = (e: MouseEvent) => {
+            this.mouseMove(e);
+        };
         if ( document.pointerLockElement === this.canvas )
         {
-            // we've got a pointerlock for our element, add a mouselistener
-            document.addEventListener("mousemove", (e) => this.mouseMove( e ), false);
-            document.addEventListener("mousedown", (e) => this.mouseMove( e ), false);
-            document.addEventListener("mouseup", (e) => this.mouseMove( e ), false);
+            this.isPointerLocked = true;
+            document.addEventListener("mousemove", mouseMove, false);
+            document.addEventListener("mousedown", mouseMove, false);
+            document.addEventListener("mouseup", mouseMove, false);
         } else {
-            // pointer lock is no longer active, remove the callback
-            document.removeEventListener("mousemove", (e) => this.mouseMove( e ), false);
-            document.removeEventListener("mousedown", (e) => this.mouseMove( e ), false);
-            document.removeEventListener("mouseup", (e) => this.mouseMove( e ), false);
+            this.isPointerLocked = false;
+            document.removeEventListener("mousemove", mouseMove, false);
+            document.removeEventListener("mousedown", mouseMove, false);
+            document.removeEventListener("mouseup", mouseMove, false);
         }
     }
 
     private mouseMove(e: MouseEvent) {
-        var movementX = e.movementX ||
-                e.mozMovementX ||
-                e.webkitMovementX ||
-                0;
+        var movementX = e.movementX
+                || e.mozMovementX
+                || e.webkitMovementX
+                || e.msMovementX
+                || 0;
 
-        var movementY = e.movementY ||
-                e.mozMovementY ||
-                e.webkitMovementY ||
-                0;
+        var movementY = e.movementY 
+                || e.mozMovementY 
+                || e.webkitMovementY 
+                || e.msMovementY
+                || 0;
         
         this.accumulatedMouseDeltaX += movementX;
         this.accumulatedMouseDeltaY += movementY;
