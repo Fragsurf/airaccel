@@ -4,7 +4,6 @@
   import { PlayerController } from '../game/player/playercontroller';
 
   const props = defineProps<{ playerController: PlayerController }>();
-
   const timerText = ref( '00:00.000' );
   const velocity = ref( 0 );
   const jumps = ref( 0 );
@@ -75,10 +74,14 @@
 </script>
 
 <template>
-  <div id="game-hud" :class=" speedStage ">
-    <div class="hud-element timer">{{ timerText }}</div>
-    <div class="hud-element velocity">{{ velocity }} u/s</div>
-    <div class="hud-element stats">
+  <div id="game-hud" :class=" [ speedStage ] ">
+    <div class="timer hud-element">{{ timerText }}</div>
+    <div class="velocity hud-element" :class=" { 'pulse-element': speedStage !== 'normal' } ">
+      <span class="velocity-label">Speed</span>
+      <span class="velocity-value">{{ velocity }}</span>
+      <span class="velocity-unit">u/s</span>
+    </div>
+    <div class="stats hud-element">
       <span class="stat">Jumps: {{ jumps }}</span>
       <span class="stat">Strafes: {{ strafes }}</span>
     </div>
@@ -86,131 +89,150 @@
   </div>
 </template>
 
-<style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap');
+<style scoped lang="scss">
+  @import "./styles.scss";
 
   #game-hud {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    font-family: 'Orbitron', sans-serif;
-    color: #00ffff;
+    font-family: $font-primary;
+    color: $color-text;
     transition: all 0.3s ease;
-  }
-
-  .hud-element {
-    position: absolute;
-    border-radius: 10px;
-    padding: 10px;
-    backdrop-filter: blur(5px);
-    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
   }
 
   .timer {
-    top: 5%;
+    position: absolute;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 48px;
+    font-weight: 300;
     letter-spacing: 2px;
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    text-shadow: 0 0 10px rgba($color-primary, 0.5);
+  }
+
+  .bottom-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
   }
 
   .velocity {
-    bottom: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 28px;
-    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 15px;
+
+    .velocity-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      letter-spacing: 1px;
+    }
+
+    .velocity-value {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .velocity-unit {
+      font-size: 12px;
+      opacity: 0.7;
+    }
   }
 
   .stats {
-    bottom: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 20px;
     display: flex;
     gap: 20px;
-  }
 
-  .stat {
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
+    .stat {
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.7;
+        letter-spacing: 1px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+      }
+    }
   }
 
   .crosshair {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 6px;
-    height: 6px;
-    background: rgba(0, 255, 255, 0.7);
+    width: 4px;
+    height: 4px;
+    background: $color-primary;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-  }
+    opacity: 0.7;
 
-  /* Speed stages */
-  #game-hud.normal {
-    --hud-color: #00ffff;
-  }
-
-  #game-hud.medium {
-    --hud-color: #ffff00;
-  }
-
-  #game-hud.fast {
-    --hud-color: #ff3300;
-  }
-
-  #game-hud .hud-element {
-    color: var(--hud-color);
-    text-shadow: 0 0 10px var(--hud-color), 2px 2px 1px black;
-  }
-
-  .crosshair::before,
-  .crosshair::after {
-    content: '';
-    position: absolute;
-    background: var(--hud-color);
-  }
-
-  .crosshair::before {
-    width: 2px;
-    height: 20px;
-    left: 2px;
-    top: -7px;
-  }
-
-  .crosshair::after {
-    width: 20px;
-    height: 2px;
-    left: -7px;
-    top: 2px;
-  }
-
-  @keyframes pulse {
-
-    0%,
-    100% {
-      opacity: 0.7;
-      transform: translateX(-50%) scale(1);
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      background: $color-primary;
     }
 
-    50% {
-      opacity: 1;
-      transform: translateX(-50%) scale(1.05);
+    &::before {
+      width: 1px;
+      height: 16px;
+      left: 1.5px;
+      top: -6px;
+    }
+
+    &::after {
+      width: 16px;
+      height: 1px;
+      left: -6px;
+      top: 1.5px;
     }
   }
 
-  #game-hud.medium .velocity {
-    animation: pulse 1.5s ease-in-out infinite;
-  }
+  // Speed stages
+  #game-hud {
+    &.normal {
+      --speed-color: #{$color-primary};
+    }
 
-  #game-hud.fast .velocity {
-    animation: pulse 0.75s ease-in-out infinite;
+    &.medium {
+      --speed-color: #{mix($color-primary, $color-secondary, 25%)};
+    }
+
+    &.fast {
+      --speed-color: #{$color-secondary};
+    }
+
+    .velocity {
+      .velocity-value {
+        color: var(--speed-color);
+        text-shadow: 0 0 10px var(--speed-color), 2px 2px 1px black;
+      }
+    }
   }
 </style>

@@ -1,0 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap");
+/* Common Elements */
+.hud-element {
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-family: "Inter", sans-serif;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.game-button {
+  background: linear-gradient(45deg, #00E5FF, #00a0b3);
+  border: none;
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+.game-button:hover {
+  background: linear-gradient(45deg, #FF00E5, #b300a0);
+  box-shadow: 0 0 15px rgba(255, 0, 229, 0.5);
+}
+
+.game-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-family: "Inter", sans-serif;
+  padding: 10px 14px;
+}
+.game-input:focus {
+  border-color: #FF00E5;
+  box-shadow: 0 0 15px rgba(255, 0, 229, 0.3);
+}
+
+.progress-bar {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 2px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, #00E5FF, #FF00E5);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Animations */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.pulse-element {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+  }
+}
+.glow-element {
+  animation: subtle-glow 3s ease-in-out infinite;
+}
+
+/* Utility Classes */
+.text-primary {
+  color: #00E5FF;
+}
+.text-secondary {
+  color: #FF00E5;
+}
+.text-accent {
+  color: #FFD700;
+}
+
+.font-weight-light {
+  font-weight: 300;
+}
+.font-weight-regular {
+  font-weight: 400;
+}
+.font-weight-bold {
+  font-weight: 700;
+}
