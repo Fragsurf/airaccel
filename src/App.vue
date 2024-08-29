@@ -7,9 +7,10 @@
         </router-link>
         <div class="nav-links">
           <router-link to="/" exact>Home</router-link>
-          <router-link to="/news">News</router-link>
-          <router-link to="/maps">Maps</router-link>
-          <router-link to="/leaderboards">Leaderboards</router-link>
+          <router-link :class="{ disabled: true }" to="/news">News</router-link>
+          <router-link :class="{ disabled: true }" to="/maps">Maps</router-link>
+          <router-link :class="{ disabled: true }" to="/leaderboards">Leaderboards</router-link>
+          <router-link :class="{ disabled: true }" to="/graybox">Level Editor</router-link>
           <button @click=" openAirAccelScene " class="play-button">Play Now</button>
         </div>
       </nav>
@@ -54,6 +55,11 @@
 body {
   margin: 0;
   padding: 0;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 #app {

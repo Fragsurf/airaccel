@@ -22,6 +22,11 @@
       </div>
     </section>
 
+    <section class="prototype-warning">
+      <div class="warning-icon">&#9888;</div>
+      <p><strong>Early Prototype:</strong> {{ gameTitle }} is currently in early development stages.  Many things are missing or incomplete.</p>
+    </section>
+
     <section class="github card">
       <h2>Open Source</h2>
       <p>Shape the future of speedrunning. Contribute to {{ gameTitle }}.</p>
@@ -207,6 +212,44 @@ const gameTitle = 'AIRACCEL';
     );
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+  }
+}
+
+.prototype-warning {
+  background: linear-gradient(
+    135deg, 
+    rgba($color-accent, 0.15) 0%, 
+    rgba($color-accent, 0.05) 100%
+  );
+  border: 1px solid rgba($color-accent, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .warning-icon {
+    font-size: 1.5rem;
+    color: $color-accent;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: rgba($color-text, 0.9);
+  }
+
+  strong {
+    color: $color-accent;
   }
 }
 </style>
