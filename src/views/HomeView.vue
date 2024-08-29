@@ -1,7 +1,7 @@
 <template>
   <main class="home">
     <section class="hero">
-      <img src="assets/images/airaccel_logo.png" alt="AIRACCEL Logo" class="hero-logo" />
+      <img src="/assets/images/airaccel_logo.png" alt="AIRACCEL Logo" class="hero-logo" />
       <p>Precision bunnyhop. Fluid surfing. Pure speed.</p>
     </section>
 
