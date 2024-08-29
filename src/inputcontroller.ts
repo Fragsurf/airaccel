@@ -10,11 +10,11 @@ export class InputController {
     private lastUnlockTime: number = 0;
     private readonly LOCK_COOLDOWN: number = 1500; 
 
-    constructor(scene: Scene, engine: Engine) {
+    constructor(scene: Scene, engine: Engine, canvas: HTMLCanvasElement) {
         this.scene = scene;
         this.engine = engine;
-        this.canvas = this.engine.getRenderingCanvas() as HTMLCanvasElement;
-        this.setupPointerLock();
+        this.canvas = canvas;
+        //this.setupPointerLock();
     }
 
     private setupPointerLock(): void {

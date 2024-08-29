@@ -1,5 +1,4 @@
-import { Scene, KeyboardEventTypes, Vector3, Engine, DeviceSourceManager, DeviceType, PointerInput, PointerInfo } from '@babylonjs/core';
-import { InputManager } from '@babylonjs/core/Inputs/scene.inputManager';
+import { Scene, KeyboardEventTypes, Vector3 } from '@babylonjs/core';
 
 export enum InputAction {
     None    = 0,
@@ -45,13 +44,9 @@ export class ClientInput {
     private currentCommand: UserCommand = new UserCommand();
     private pressedKeys: Set<string> = new Set();
     private inputState: number = 0;
-    private sensitivity: number = 0.0005;
-    private deviceSourceManager: DeviceSourceManager;
-    private lastMouseX: number = 0;
-
+    private sensitivity: number = .001 * .5;
     private accumulatedMouseDeltaX: number = 0;
     private accumulatedMouseDeltaY: number = 0;
-    private isPointerLocked: boolean = false;
 
     private canvas: HTMLCanvasElement;
 
@@ -63,9 +58,8 @@ export class ClientInput {
 
     constructor(scene: Scene) {
         this.scene = scene;
-        this.deviceSourceManager = new DeviceSourceManager(this.scene.getEngine());
         this.keyMapping = this.getDefaultKeyMapping();
-        this.canvas = this.scene.getEngine().getRenderingCanvas() as HTMLCanvasElement;
+        this.canvas = scene.getEngine().getRenderingCanvas() as HTMLCanvasElement;
         this.setupListeners();
     }
 
@@ -96,28 +90,7 @@ export class ClientInput {
             }
         });
 
-        this.scene.onPointerObservable.add((pinfo: PointerInfo) => {
-            this.accumulatedMouseDeltaX += pinfo.event.movementX;
-            this.accumulatedMouseDeltaY += pinfo.event.movementY;
-        });
-
-        document.addEventListener("pointerlockchange", () => {
-            this.isPointerLocked = document.pointerLockElement === this.canvas;
-        });
-
-        // Set up DeviceSourceManager for mouse input
-        // this.deviceSourceManager.onDeviceConnectedObservable.add((deviceSource) => {
-        //     if (deviceSource.deviceType === DeviceType.Mouse) {
-        //         deviceSource.onInputChangedObservable.add((eventData) => {
-        //             if (this.isPointerLocked) {
-        //                 if (eventData.inputIndex === PointerInput.Move) {
-        //                     this.accumulatedMouseDeltaX += eventData.movementX;
-        //                     this.accumulatedMouseDeltaY += eventData.movementY;
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
+        this.setupPointerLock();
     }
 
     public setKeyMapping(newMapping: Map<string, InputAction>) {
@@ -127,7 +100,6 @@ export class ClientInput {
     public setSensitivity(sensitivity: number) {
         this.sensitivity = sensitivity;
     }
-
 
     public update(deltaTime: number) {
         this.currentCommand.previousState = this.currentCommand.currentState;
@@ -167,4 +139,54 @@ export class ClientInput {
 
         return tickCommand;
     }
+
+    private setupPointerLock(): void
+    {
+        const canvas = this.canvas;
+        
+        // register the callback when a pointerlock event occurs
+        document.addEventListener('pointerlockchange', (e) => this.changeCallback( e ), false);
+        document.addEventListener('mozpointerlockchange', (e) => this.changeCallback( e ), false);
+        document.addEventListener('webkitpointerlockchange', (e) => this.changeCallback( e ), false);
+
+        this.canvas.onclick = function(){
+            canvas.requestPointerLock = 
+            canvas.requestPointerLock ||
+            canvas.mozRequestPointerLock ||
+            canvas.webkitRequestPointerLock;
+            canvas.requestPointerLock({unadjustedMovement: true});
+        };
+    }
+
+    private changeCallback(e: any): void 
+    {
+        if ( document.pointerLockElement === this.canvas )
+        {
+            // we've got a pointerlock for our element, add a mouselistener
+            document.addEventListener("mousemove", (e) => this.mouseMove( e ), false);
+            document.addEventListener("mousedown", (e) => this.mouseMove( e ), false);
+            document.addEventListener("mouseup", (e) => this.mouseMove( e ), false);
+        } else {
+            // pointer lock is no longer active, remove the callback
+            document.removeEventListener("mousemove", (e) => this.mouseMove( e ), false);
+            document.removeEventListener("mousedown", (e) => this.mouseMove( e ), false);
+            document.removeEventListener("mouseup", (e) => this.mouseMove( e ), false);
+        }
+    }
+
+    private mouseMove(e: MouseEvent) {
+        var movementX = e.movementX ||
+                e.mozMovementX ||
+                e.webkitMovementX ||
+                0;
+
+        var movementY = e.movementY ||
+                e.mozMovementY ||
+                e.webkitMovementY ||
+                0;
+        
+        this.accumulatedMouseDeltaX += movementX;
+        this.accumulatedMouseDeltaY += movementY;
+    };
+
 }

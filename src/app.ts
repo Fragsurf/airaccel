@@ -18,19 +18,18 @@ class App {
     private gameLoop!: GameLoop;
     private playerController!: PlayerController;
     private physics!: GamePhysics;
-    private input: InputController;
     private gameHud: GameHUD;
+    private canvas: HTMLCanvasElement;
 
     constructor() {
-        var canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
+        this.canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
+        this.canvas.style.width = "100%";
+        this.canvas.style.height = "100%";
 
         this.framerateDisplay = new FPSGraph();
         this.gameHud = new GameHUD();
-        this.engine = new Engine(canvas, true);
+        this.engine = new Engine(this.canvas, true);
         this.scene = new Scene(this.engine);
-        this.input = new InputController( this.scene, this.engine );
 
         this.initializePhysicsAndScene().then(() => {
 
@@ -53,6 +52,10 @@ class App {
         window.addEventListener("resize", () => {
             this.engine.resize();
         });
+    }
+
+    public getCanvas(): HTMLCanvasElement {
+        return this.canvas;
     }
 
     private async initializePhysicsAndScene(): Promise<void> {
