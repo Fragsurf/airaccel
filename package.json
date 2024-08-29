@@ -6,7 +6,7 @@
     "dev": "concurrently \"npm run sass:watch\" \"vite\"",
     "build": "npm run sass && vite build",
     "preview": "vite preview",
-    "start": "concurrently \"npm run sass:watch\" \"node server.js\"",
+    "start": "node server.js",
     "postinstall": "npm run build",
     "sass": "sass src:public/assets/ui --no-source-map",
     "sass:watch": "sass src:public/assets/ui --watch --no-source-map"
