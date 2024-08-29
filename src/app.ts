@@ -7,7 +7,6 @@ import HavokPhysics from "@babylonjs/havok";
 import { GameLoop } from "./gameloop";
 import { PlayerController } from "./player/playercontroller";
 import { GamePhysics } from "./gamephysics";
-import { InputController } from "./inputcontroller";
 import { GameHUD } from "./ui/gamehud";
 import { GrayboxMap } from "./map/gbmap";
 

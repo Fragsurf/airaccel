@@ -154,6 +154,7 @@ export class ClientInput {
             canvas.requestPointerLock ||
             canvas.mozRequestPointerLock ||
             canvas.webkitRequestPointerLock;
+            // @ts-expect-error
             canvas.requestPointerLock({unadjustedMovement: true});
         };
     }
