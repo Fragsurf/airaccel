@@ -163,24 +163,21 @@ export class ClientInput {
 
     private changeCallback(e: any): void 
     {
-        const mouseMove = (e: MouseEvent) => {
-            this.mouseMove(e);
-        };
         if ( document.pointerLockElement === this.canvas )
         {
             this.isPointerLocked = true;
-            document.addEventListener("mousemove", mouseMove, false);
-            document.addEventListener("mousedown", mouseMove, false);
-            document.addEventListener("mouseup", mouseMove, false);
+            document.addEventListener("mousemove", this.mouseMove, false);
+            document.addEventListener("mousedown", this.mouseMove, false);
+            document.addEventListener("mouseup", this.mouseMove, false);
         } else {
             this.isPointerLocked = false;
-            document.removeEventListener("mousemove", mouseMove, false);
-            document.removeEventListener("mousedown", mouseMove, false);
-            document.removeEventListener("mouseup", mouseMove, false);
+            document.removeEventListener("mousemove", this.mouseMove, false);
+            document.removeEventListener("mousedown", this.mouseMove, false);
+            document.removeEventListener("mouseup", this.mouseMove, false);
         }
     }
 
-    private mouseMove(e: MouseEvent) {
+    private mouseMove = (e: MouseEvent) => {
         var movementX = e.movementX
                 || e.mozMovementX
                 || e.webkitMovementX
