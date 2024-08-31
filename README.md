@@ -8,7 +8,9 @@ AIRACCEL's mission is accessibility.  We're going to solve those two problems.
 
 ## What else?
 
-Bunnyhop and surf have thrived for a very long time thanks to the passion of its community.  We want to continue that, and give creators the tools they need to build awesome maps.  Graybox is a modern level editor designed for [Fragsurf](https://store.steampowered.com/app/1033410/Fragsurf/) and AIRACCEL.  Graybox will be open sourced as well at a later date.
+Bunnyhop and surf have thrived for a very long time thanks to the passion of its community.  We want to continue that, and give creators the tools they need to build awesome maps.  Graybox is a modern level editor designed for [Fragsurf](https://store.steampowered.com/app/1033410/Fragsurf/) and AIRACCEL.
+
+[Graybox](https://github.com/Fragsurf/graybox) is also open source.
 
 ## Contribute
 
